@@ -33,13 +33,11 @@ void initFieldArrays(int nx, int ny)
 /* Magnetic Components */
 	Tx = new double complex *[nx];
 	Bx = new double complex *[nx];
-	Hx = new double complex *[nx];
 	
 	for (int i = 0; i < nx; i++)
 	{
 		Tx[i] = new double complex [ny];
 		Bx[i] = new double complex [ny];
-		Hx[i] = new double complex [ny];
 	}
 	
 	for (int i = 0; i < nx; i++)
@@ -48,19 +46,16 @@ void initFieldArrays(int nx, int ny)
 		{
 			Tx[i][j] = 0.0;
 			Bx[i][j] = 0.0;
-			Hx[i][j] = 0.0;
 		}
 	}
 	
 	Ty = new double complex *[nx];
 	By = new double complex *[nx];
-	Hy = new double complex *[nx];
 	
 	for (int i = 0; i < nx; i++)
 	{
 		Ty[i] = new double complex [ny];
 		By[i] = new double complex [ny];
-		Hy[i] = new double complex [ny];
 	}
 	
 	for (int i = 0; i < nx; i++)
@@ -69,7 +64,6 @@ void initFieldArrays(int nx, int ny)
 		{
 			Ty[i][j] = 0.0;
 			By[i][j] = 0.0;
-			Hy[i][j] = 0.0;
 		}
 	}
 	
@@ -224,31 +218,6 @@ void initFieldArrays(int nx, int ny)
 		}
 	}
 
-/* t_Hx */	
-	t_Hx = new double complex **[nx];
-	
-	for (int i = 0; i < nx; i++)
-	{
-		t_Hx[i] = new double complex *[ny];
-	}
-	
-	for (int i = 0; i < nx; i++)
-	{
-		for (int j = 0; j < ny; j++)
-		{
-			t_Hx[i][j] = new double complex [2];
-		}
-	}
-	
-	for (int i  = 0; i < nx; i++)
-	{
-		for (int j = 0; j < ny; j++)
-		{
-			t_Hx[i][j][0] = 0.0;
-			t_Hx[i][j][1] = 0.0;
-		}
-	}
-
 /* t_Ty */	
 	t_Ty = new double complex **[nx];
 	
@@ -299,33 +268,6 @@ void initFieldArrays(int nx, int ny)
 		}
 	}
 
-/* t_Hy */	
-	t_Hy = new double complex **[nx];
-	
-	for (int i = 0; i < nx; i++)
-	{
-		t_Hy[i] = new double complex *[ny];
-	}
-	
-	for (int i = 0; i < nx; i++)
-	{
-		for (int j = 0; j < ny; j++)
-		{
-			t_Hy[i][j] = new double complex [2];
-		}
-	}
-	
-	for (int i  = 0; i < nx; i++)
-	{
-		for (int j = 0; j < ny; j++)
-		{
-			t_Hy[i][j][0] = 0.0;
-			t_Hy[i][j][1] = 0.0;
-		}
-	}
-	
-}
-
 void delFieldArrays(int nx)
 {
 /* Deallocates memory space from field arrays */
@@ -338,11 +280,9 @@ void delFieldArrays(int nx)
 		
 		delete[] Tx[i];
 		delete[] Bx[i];
-		delete[] Hx[i];
 		
 		delete[] Ty[i];
 		delete[] By[i];
-		delete[] Hy[i];
 	}
 	
 	delete[] Gz;
@@ -352,11 +292,9 @@ void delFieldArrays(int nx)
 	
 	delete[] Tx;
 	delete[] Bx;
-	delete[] Hx;
-	
+
 	delete[] Ty;
 	delete[] By;
-	delete[] Hy;
 }
 
 void initUPML(int nx, int upmlSize_x, int ny, int upmlSize_y, double kappa_max, double sigma_max, int mp)
@@ -738,7 +676,7 @@ void updateElectricField(int nx, int ny, int T, int chunk)
 	{
 		for (int j = 1; j < ny - 1; j++)
 		{
-			Gz[i][j] = t_Gz[i][j][1] + (dt/ddx)*(Hy[i + 1][j] - Hy[i - 1][j] - Hx[i][j + 1] + Hx[i][j - 1]);
+			Gz[i][j] = t_Gz[i][j][1] + (c*dt/ddx)*(By[i + 1][j] - By[i][j] - Bx[i][j + 1] + Bx[i][j]);
 		}
 	}
 /* Inserting the input source */
@@ -783,7 +721,7 @@ void updateMagneticField(int nx, int ny, int T, int chunk)
 	{
 		for (int j = 1; j < ny - 1; j++)
 		{
-			Tx[i][j] = t_Tx[i][j][1] - (dt/ddx)*(Ez[i][j + 1] - Ez[i][j - 1]);
+			Tx[i][j] = t_Tx[i][j][1] - (c*dt/ddx)*(Ez[i][j + 1] - Ez[i][j]);
 		}
 	}
 	
@@ -796,16 +734,6 @@ void updateMagneticField(int nx, int ny, int T, int chunk)
 			Bx[i][j] = AX1(i, j)*Tx[i][j] + AX2(i, j)*t_Tx[i][j][1] + AX3(i, j)*t_Tx[i][j][0] - AX4(i, j)*t_Bx[i][j][1] - AX5(i, j)*t_Bx[i][j][0];
 		}
 	}
-
-/* Hx */
-	#pragma omp parallel for schedule (static, chunk)
-	for (int i = 1; i < nx; i++)
-	{
-		for (int j = 1; j < ny; j++)
-		{
-			Hx[i][j] = (1/mu_0)*Bx[i][j];
-		}
-	}
 	
 /* y components */
 /* Ty */
@@ -813,7 +741,7 @@ void updateMagneticField(int nx, int ny, int T, int chunk)
 	{
 		for (int j = 1; j < ny; j++)
 		{
-			Tx[i][j] = t_Ty[i][j][1] + (dt/ddx)*(Ez[i + 1][j] - Ez[i - 1][j]);
+			Tx[i][j] = t_Ty[i][j][1] + (c*dt/ddx)*(Ez[i + 1][j] - Ez[i][j]);
 		}
 	}
 /* By */
@@ -823,16 +751,6 @@ void updateMagneticField(int nx, int ny, int T, int chunk)
 		for (int j = 1; j < ny; j++)
 		{
 			By[i][j] = AY1(i, j)*Ty[i][j] + AY2(i, j)*t_Ty[i][j][1] + AY3(i, j)*t_Ty[i][j][0] - AY4(i, j)*t_By[i][j][1] - AY5(i, j)*t_By[i][j][0];
-		}
-	}
-
-/* Hy */
-	#pragma omp parallel for schedule (static, chunk)
-	for (int i = 1; i < nx; i++)
-	{
-		for (int j = 1; j < ny; j++)
-		{
-			Hy[i][j] = (1/mu_0)*By[i][j];
 		}
 	}
 }
