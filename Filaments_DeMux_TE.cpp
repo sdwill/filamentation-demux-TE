@@ -665,7 +665,7 @@ void inputSource(int T)
 {
 	for (int i = 400; i <= 600; i++)
 	{
-		Gz[i][700] = Gz[i][700] + sin(2*3.14*freqWave*dt*T);
+		Gz[i][500] = Gz[i][500] + sin(2*3.14*freqWave*dt*T);
 	}
 }
 
@@ -676,9 +676,10 @@ void updateElectricField(int nx, int ny, int T, int chunk)
 	{
 		for (int j = 1; j < ny - 1; j++)
 		{
-			Gz[i][j] = t_Gz[i][j][1] + (c*dt/ddx)*(By[i + 1][j] - By[i][j] - Bx[i][j + 1] + Bx[i][j]);
+			Gz[i][j] = t_Gz[i][j][0] + (c*dt/ddx)*(By[i + 1][j] - By[i][j] - Bx[i][j + 1] + Bx[i][j]);
 		}
 	}
+
 /* Inserting the input source */
 	inputSource(T);
 
@@ -721,7 +722,7 @@ void updateMagneticField(int nx, int ny, int T, int chunk)
 	{
 		for (int j = 1; j < ny - 1; j++)
 		{
-			Tx[i][j] = t_Tx[i][j][1] - (c*dt/ddx)*(Ez[i][j + 1] - Ez[i][j]);
+			Tx[i][j] = t_Tx[i][j][0] - (c*dt/ddx)*(Ez[i][j + 1] - Ez[i][j]);
 		}
 	}
 	
@@ -741,7 +742,7 @@ void updateMagneticField(int nx, int ny, int T, int chunk)
 	{
 		for (int j = 1; j < ny; j++)
 		{
-			Tx[i][j] = t_Ty[i][j][1] + (c*dt/ddx)*(Ez[i + 1][j] - Ez[i][j]);
+			Tx[i][j] = t_Ty[i][j][0] + (c*dt/ddx)*(Ez[i + 1][j] - Ez[i][j]);
 		}
 	}
 /* By */
@@ -769,10 +770,8 @@ void resetTempArrays(int nx, int ny, int chunk)
 			t_Ez[i][j][0] = t_Ez[i][j][1] = 0.0 + I*0.0;
 			t_Tx[i][j][0] = t_Tx[i][j][1] = 0.0 + I*0.0;
 			t_Bx[i][j][0] = t_Bx[i][j][1] = 0.0 + I*0.0;
-			t_Hx[i][j][0] = t_Hx[i][j][1] = 0.0 + I*0.0;
 			t_Ty[i][j][0] = t_Ty[i][j][1] = 0.0 + I*0.0;
 			t_By[i][j][0] = t_By[i][j][1] = 0.0 + I*0.0;
-			t_Hy[i][j][0] = t_Hy[i][j][1] = 0.0 + I*0.0;
 		}
 	}
 }
@@ -798,15 +797,11 @@ void updateTempArrays(int nx, int ny, int chunk)
 			t_Tx[i][j][1] = Tx[i][j];
 			t_Bx[i][j][0] = t_Bx[i][j][1];
 			t_Bx[i][j][1] = Bx[i][j];
-			t_Hx[i][j][0] = t_Hx[i][j][1];
-			t_Hx[i][j][1] = Hx[i][j];
 			
 			t_Ty[i][j][0] = t_Ty[i][j][1];
 			t_Ty[i][j][1] = Ty[i][j];
 			t_By[i][j][0] = t_By[i][j][1];
 			t_By[i][j][1] = By[i][j];
-			t_Hy[i][j][0] = t_Hy[i][j][1];
-			t_Hy[i][j][1] = Hy[i][j];
 		}
 	}
 }
@@ -907,10 +902,10 @@ int main()
 	numSteps = 3500; 					// Number of iterations simulation should execute
 
 	/* Initial Parameters */
-	n_0 = 7*pow(10, 16 + 6);
-	beta = 0.12*pow(10, -13);
-	h = 2.5*pow(10, 7);
-	b = beta*n_0;
+	n_0 = 0*7*pow(10, 16 + 6);
+	beta = 0*0.12*pow(10, -13);
+	h = 0*2.5*pow(10, 7);
+	b = 0*beta*n_0;
 
 	/* UPML Parameters */
 	upmlSize_x = 40;
