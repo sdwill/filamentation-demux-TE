@@ -17,12 +17,12 @@ using namespace std;
 
 /* Arrays */
 double complex **Gz, **Mz, **Dz, **Ez;
-double complex **Tx, **Bx, **Hx;
-double complex **Ty, **By, **Hy;
+double complex **Tx, **Bx;
+double complex **Ty, **By;
 
 double complex ***t_Gz, ***t_Mz, ***t_Dz, ***t_Ez;
-double complex ***t_Tx, ***t_Bx, ***t_Hx;
-double complex ***t_Ty, ***t_By, ***t_Hy;
+double complex ***t_Tx, ***t_Bx;
+double complex ***t_Ty, ***t_By;
 
 double **alpha_x, **beta_x;
 double **alpha_y, **beta_y;

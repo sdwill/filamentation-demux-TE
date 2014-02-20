@@ -267,7 +267,7 @@ void initFieldArrays(int nx, int ny)
 			t_By[i][j][1] = 0.0;
 		}
 	}
-
+}
 void delFieldArrays(int nx)
 {
 /* Deallocates memory space from field arrays */
